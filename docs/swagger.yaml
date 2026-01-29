@@ -1,0 +1,789 @@
+basePath: /
+definitions:
+  handlers.AddCartItemRequest:
+    properties:
+      product_id:
+        type: string
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - product_id
+    - quantity
+    type: object
+  handlers.LoginRequest:
+    description: User login payload
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      password:
+        example: password123
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  handlers.RegisterRequest:
+    description: User registration payload
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      fullname:
+        example: John Doe
+        maxLength: 50
+        minLength: 2
+        type: string
+      password:
+        example: password123
+        minLength: 6
+        type: string
+      username:
+        example: johndoe
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - email
+    - fullname
+    - password
+    - username
+    type: object
+  helper.CreateProductRequest:
+    type: object
+  models.Order:
+    properties:
+      created_at:
+        type: string
+      discount_amount:
+        type: number
+      id:
+        type: string
+      order_items:
+        items:
+          $ref: '#/definitions/models.OrderItem'
+        type: array
+      order_number:
+        type: string
+      shipping_amount:
+        type: number
+      status:
+        $ref: '#/definitions/models.OrderStatus'
+      subtotal:
+        type: number
+      tax_amount:
+        type: number
+      total_amount:
+        type: number
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      user_id:
+        type: string
+    type: object
+  models.OrderItem:
+    properties:
+      createdAt:
+        type: string
+      discountPercent:
+        type: number
+      id:
+        type: string
+      order:
+        allOf:
+        - $ref: '#/definitions/models.Order'
+        description: Relations
+      orderID:
+        type: string
+      product:
+        $ref: '#/definitions/models.Product'
+      productID:
+        type: string
+      productName:
+        type: string
+      productPrice:
+        description: snapshot at purchase time
+        type: number
+      quantity:
+        type: integer
+      totalPrice:
+        type: number
+    type: object
+  models.OrderStatus:
+    enum:
+    - pending
+    - paid
+    - shipped
+    - cancelled
+    type: string
+    x-enum-varnames:
+    - OrderPending
+    - OrderPaid
+    - OrderShipped
+    - OrderCancelled
+  models.Product:
+    properties:
+      basePrice:
+        type: number
+      created_at:
+        type: string
+      created_by:
+        type: string
+      currency:
+        type: string
+      discountPercent:
+        type: number
+      id:
+        type: string
+      isCodAvailable:
+        type: boolean
+      isReturnable:
+        type: boolean
+      name:
+        type: string
+      numberOfStock:
+        type: integer
+      productImages:
+        items:
+          $ref: '#/definitions/models.ProductImages'
+        type: array
+      shortDescription:
+        type: string
+      status:
+        $ref: '#/definitions/models.ProductStatus'
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    type: object
+  models.ProductImages:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      imageUrl:
+        type: string
+      isPrimary:
+        type: boolean
+      product:
+        $ref: '#/definitions/models.Product'
+      productId:
+        type: string
+      sortOrder:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  models.ProductStatus:
+    enum:
+    - draft
+    - active
+    - inactive
+    - archived
+    type: string
+    x-enum-varnames:
+    - ProductDraft
+    - ProductActive
+    - ProductInactive
+    - ProductArchived
+  models.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      fullname:
+        type: string
+      id:
+        type: string
+      orders:
+        items:
+          $ref: '#/definitions/models.Order'
+        type: array
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: E-commerce REST API example
+  title: Golang REST API
+  version: 0.1.0
+paths:
+  /cart:
+    post:
+      consumes:
+      - application/json
+      description: Create a new cart for authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Create a cart
+      tags:
+      - Cart
+  /cart/{userId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user's cart (admin only)
+      parameters:
+      - description: User UUID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Delete cart by user ID (Admin)
+      tags:
+      - Cart
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a user's cart (admin only)
+      parameters:
+      - description: User UUID
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get cart by user ID (Admin)
+      tags:
+      - Cart
+  /cart/item:
+    post:
+      consumes:
+      - application/json
+      description: Add a product to cart or update quantity
+      parameters:
+      - description: Cart item data
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AddCartItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Add or update cart item
+      tags:
+      - Cart
+  /cart/item/{product_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a specific product from cart
+      parameters:
+      - description: Product UUID
+        in: path
+        name: product_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Remove item from cart
+      tags:
+      - Cart
+  /cart/items:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all items in user's cart (uses cache)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get all cart items
+      tags:
+      - Cart
+  /checkout:
+    post:
+      consumes:
+      - application/json
+      description: Creates an order from the authenticated user's cart
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Order'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Place an order (checkout)
+      tags:
+      - Orders
+  /products/:
+    post:
+      consumes:
+      - application/json
+      description: Create a product (requires auth)
+      parameters:
+      - description: Product data
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/helper.CreateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new product
+      tags:
+      - Products
+  /products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete product by ID (requires auth)
+      parameters:
+      - description: Product UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a product
+      tags:
+      - Products
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a single product by UUID (uses cache)
+      parameters:
+      - description: Product UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get product by ID
+      tags:
+      - Products
+    put:
+      consumes:
+      - application/json
+      description: Update product by ID (requires auth)
+      parameters:
+      - description: Product UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Product data
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/models.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Update a product
+      tags:
+      - Products
+  /products/all:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve list of all products
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all products
+      tags:
+      - Products
+  /users/all:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve list of all users (requires auth)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get all users
+      tags:
+      - Users
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: User login
+      tags:
+      - Auth
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account
+      parameters:
+      - description: User registration data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register a new user
+      tags:
+      - Auth
+  /users/user:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a user by email query param
+      parameters:
+      - description: User email
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get user by email
+      tags:
+      - Users
+  /users/user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a single user by UUID
+      parameters:
+      - description: User UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get user by ID
+      tags:
+      - Users
+schemes:
+- http
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

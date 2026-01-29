@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: golang_restapi_postgresql_test1
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  go-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-api
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      DB_URL: postgres://postgres:root@postgres:5432/golang_restapi_postgresql_test1?sslmode=disable
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
