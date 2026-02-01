@@ -1189,7 +1189,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "0.1.0",
 	Host:             "localhost:8080",
-	BasePath:         "/",
+	BasePath:         "/api/v1",
 	Schemes:          []string{"http"},
 	Title:            "Golang REST API",
 	Description:      "E-commerce REST API example",

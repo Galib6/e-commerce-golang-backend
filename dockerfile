@@ -29,6 +29,9 @@ RUN apk add --no-cache ca-certificates
 # Copy compiled binary
 COPY --from=builder /app/app .
 
+# Copy migrations folder for TypeORM-style migrations
+COPY --from=builder /app/migrations ./migrations
+
 # Expose app port (change if needed)
 EXPOSE 3000
 

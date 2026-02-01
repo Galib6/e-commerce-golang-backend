@@ -17,7 +17,7 @@ import (
 // @version         0.1.0
 // @description     E-commerce REST API example
 // @host            localhost:8080
-// @BasePath        /
+// @BasePath        /api/v1
 // @schemes         http
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
@@ -27,7 +27,6 @@ func main() {
 
 	// Load environment variables
 	env := config.LoadEnv()
-	fmt.Println("Loaded DB_URL:", env)
 
 	// Load DB URL from environment
 	dsn := env.DatabaseUrl
@@ -48,7 +47,7 @@ func main() {
 	var router *gin.Engine = gin.Default()
 	//router := gin.Default()
 
-	router.SetTrustedProxies(nil)
+	// router.SetTrustedProxies(nil)
 	router.Use(middleware.CORSMiddleware())
 	router.GET("/", func(ctx *gin.Context) {
 		fmt.Println("go working")
@@ -73,6 +72,12 @@ func main() {
 	// swagger UI
 	url := ginSwagger.URL("http://localhost:" + port + "/swagger/doc.json")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
+
+	// Log server URLs before starting
+	log.Println("========================================")
+	log.Printf("🚀 API Server:    http://localhost:%s/api/v1", port)
+	log.Printf("📚 Swagger Docs:  http://localhost:%s/swagger/index.html", port)
+	log.Println("========================================")
 
 	router.Run(":" + port)
 

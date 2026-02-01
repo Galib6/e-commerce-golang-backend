@@ -37,7 +37,10 @@ services:
     environment:
       DB_URL: postgres://postgres:root@postgres:5432/golang_restapi_postgresql_test1?sslmode=disable
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
 volumes:
   pgdata:

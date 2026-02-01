@@ -8,9 +8,12 @@ import (
 
 func SetRoutes(r *gin.Engine) {
 
+	// API v1 prefix for all routes
+	api := r.Group("/api/v1")
+
 	//user routes
 
-	user := r.Group("/users")
+	user := api.Group("/users")
 	{
 		// ✅ Simple pattern: validation happens inside handler via ShouldBindJSON
 		user.POST("/register", handlers.Register)
@@ -22,7 +25,7 @@ func SetRoutes(r *gin.Engine) {
 
 	// product routes
 
-	product := r.Group("/products")
+	product := api.Group("/products")
 	{
 		product.GET("/all", handlers.GetAllProducts)
 
@@ -38,7 +41,7 @@ func SetRoutes(r *gin.Engine) {
 
 	// cart routes
 
-	cart := r.Group(("/cart"))
+	cart := api.Group(("/cart"))
 	cartUserProtected := cart.Group("/")
 	cartUserProtected.Use(middleware.AuthMiddleware())
 	{

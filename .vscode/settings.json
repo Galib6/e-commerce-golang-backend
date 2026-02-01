@@ -1,0 +1,42 @@
+{
+  // Go formatting on save (like Prettier for JS)
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "golang.go",
+  
+  // Go specific settings
+  "go.formatTool": "goimports",
+  "go.lintTool": "golangci-lint",
+  "go.lintOnSave": "package",
+  
+  // Organize imports on save
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  
+  // File associations
+  "files.associations": {
+    "*.go": "go"
+  },
+  
+  // Exclude from search/watch
+  "files.exclude": {
+    "**/tmp": true,
+    "**/bin": true
+  },
+  "search.exclude": {
+    "**/docs": true,
+    "**/tmp": true
+  },
+  
+  // Tab settings for Go (tabs, not spaces)
+  "[go]": {
+    "editor.tabSize": 4,
+    "editor.insertSpaces": false,
+    "editor.formatOnSave": true
+  },
+  
+  // Makefile needs tabs
+  "[makefile]": {
+    "editor.insertSpaces": false
+  }
+}
